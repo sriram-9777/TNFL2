@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. This is a pure Compose app so we use the
+         built-in Android Material light theme as a bridge. Compose Material3
+         handles all actual theming at runtime. -->
+    <style name="Theme.V2" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>
