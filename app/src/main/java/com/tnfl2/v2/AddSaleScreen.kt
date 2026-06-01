@@ -18,6 +18,8 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -253,14 +255,15 @@ fun AddSaleScreen(
     }
 
     GradientBackground {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(modifier = Modifier.fillMaxSize()) {
             val tabs = listOf("Sales", "Expenses", "Final Settlement")
             val selectedTabIndex = tabs.indexOf(currentScreen).coerceAtLeast(0)
 
             TabRow(
                 selectedTabIndex = selectedTabIndex,
                 containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onBackground
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
             ) {
                 tabs.forEachIndexed { index, title ->
                     val isSelected = selectedTabIndex == index
@@ -278,51 +281,62 @@ fun AddSaleScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             when (currentScreen) {
                     "Sales" -> {
-                        Text("Add Sale", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            item {
-                                Row(modifier = Modifier.fillMaxWidth()) {
-                                    TableCell(text = "SKU", weight = 2f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                                    TableCell(text = "Opening", weight = 1f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                                    TableCell(text = "Closing", weight = 1f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                                    TableCell(text = "Price", weight = 1f, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                                }
-                                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-                            }
-                            items(products) { product ->
-                                ProductRow(
-                                    product = product,
-                                    closingStock = closingStocks[product.sku] ?: "",
-                                    onClosingStockChange = { newValue ->
-                                        closingStocks[product.sku] = newValue
-                                        calculateTotalSaleAmount(products)
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.weight(1f).padding(horizontal = 16.dp)
+                            ) {
+                                item {
+                                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                        Text("SKU", modifier = Modifier.weight(2f), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                                        Text("Opening", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                                        Text("Closing", modifier = Modifier.weight(1.2f), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                                        Text("Price", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, textAlign = androidx.compose.ui.text.style.TextAlign.End)
                                     }
-                                )
-                                HorizontalDivider(color = Color.White.copy(alpha = 0.5f))
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                                }
+                                items(products) { product ->
+                                    ProductRow(
+                                        product = product,
+                                        closingStock = closingStocks[product.sku] ?: "",
+                                        onClosingStockChange = { newValue ->
+                                            closingStocks[product.sku] = newValue
+                                            calculateTotalSaleAmount(products)
+                                        }
+                                    )
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                                }
                             }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Total Sale Amount: ${NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(totalSaleAmount)}",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                            Button(onClick = onCancel, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Cancel") }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(onClick = { confirmSale(false) }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Save Draft") }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(onClick = { currentScreen = "Expenses" }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Next") }
+                            // Bottom Action Bar
+                            Surface(
+                                shadowElevation = 16.dp,
+                                color = MaterialTheme.colorScheme.surface,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                        Text("Total Amount", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                                        Text(
+                                            text = NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(totalSaleAmount),
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Black,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                                        OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Cancel") }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Button(onClick = { confirmSale(false) }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) { Text("Save Draft") }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Button(onClick = { currentScreen = "Expenses" }, modifier = Modifier.weight(1f)) { Text("Next") }
+                                    }
+                                }
+                            }
                         }
                     }
                     "Expenses" -> {
@@ -350,8 +364,8 @@ fun AddSaleScreen(
                         )
                     }
                 }
-            }
         }
+    }
     }
 
 @Composable
@@ -360,21 +374,46 @@ fun ProductRow(
     closingStock: String,
     onClosingStockChange: (String) -> Unit
 ) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        TableCell(text = product.sku, weight = 2f, color = MaterialTheme.colorScheme.onBackground)
-        TableCell(text = product.openingStock.toString(), weight = 1f, color = MaterialTheme.colorScheme.onBackground)
-        TextField(
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = product.sku,
+            modifier = Modifier.weight(2f).padding(end = 8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground,
+            maxLines = 2,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+        )
+        Text(
+            text = product.openingStock.toString(),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        OutlinedTextField(
             value = closingStock,
             onValueChange = onClosingStockChange,
-            modifier = Modifier.weight(1f),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                unfocusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
-            )
+            modifier = Modifier.weight(1.2f).height(56.dp),
+            textStyle = LocalTextStyle.current.copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontWeight = FontWeight.Bold),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground
+            ),
+            shape = RoundedCornerShape(12.dp),
+            singleLine = true
         )
-        TableCell(text = product.salePrice.toString(), weight = 1f, color = MaterialTheme.colorScheme.onBackground)
+        Text(
+            text = product.salePrice.toString(),
+            modifier = Modifier.weight(1f).padding(start = 8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = androidx.compose.ui.text.style.TextAlign.End
+        )
     }
 }
 
@@ -407,49 +446,52 @@ fun ExpensesScreen(
     onSave: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Text("Expenses", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = expenseReason,
-            onValueChange = onExpenseReasonChange,
-            label = { Text("Reason for expense") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                unfocusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+        Column(modifier = Modifier.weight(1f).padding(16.dp)) {
+            Text("Expenses", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = expenseReason,
+                onValueChange = onExpenseReasonChange,
+                label = { Text("Reason for expense") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = expenseAmount,
-            onValueChange = onExpenseAmountChange,
-            label = { Text("Amount for this expense") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-                unfocusedContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = expenseAmount,
+                onValueChange = onExpenseAmountChange,
+                label = { Text("Amount for this expense") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
             )
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = "Total Sale Amount: ${NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(totalSaleAmount)}",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            Button(onClick = onCancel, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Cancel") }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = onBack, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Back") }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = onSave, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Save Draft") }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = onNext, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Next") }
+        }
+        // Bottom Action Bar
+        Surface(
+            shadowElevation = 16.dp,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("Total Amount", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                    Text(
+                        text = NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(totalSaleAmount),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Cancel") }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) { Text("Back") }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Button(onClick = onSave, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)) { Text("Save", maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis) }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Button(onClick = onNext, modifier = Modifier.weight(1f)) { Text("Next") }
+                }
+            }
         }
     }
 }
@@ -457,21 +499,51 @@ fun ExpensesScreen(
 @Composable
 fun FinalSettlementScreen(totalSaleAmount: Double, onBack: () -> Unit, onCancel: () -> Unit, onSave: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Text("Final Settlement", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Total Sale Amount: ${NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(totalSaleAmount)}",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            Button(onClick = onCancel, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Cancel") }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = onBack, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Back") }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = onSave, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) { Text("Confirm") }
+        Column(modifier = Modifier.weight(1f).padding(16.dp)) {
+            Text("Final Settlement", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Ready to confirm?", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(totalSaleAmount),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+        // Bottom Action Bar
+        Surface(
+            shadowElevation = 16.dp,
+            color = MaterialTheme.colorScheme.surface,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text("Total Amount", color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                    Text(
+                        text = NumberFormat.getCurrencyInstance(Locale("en", "IN")).format(totalSaleAmount),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Cancel") }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) { Text("Back") }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(onClick = onSave, modifier = Modifier.weight(1.5f)) { Text("Confirm") }
+                }
+            }
         }
     }
 }
