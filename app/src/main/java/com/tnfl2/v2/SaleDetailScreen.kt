@@ -28,6 +28,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.foundation.Canvas
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SalesDetailViewOnly(salesDetailsJson: String, onBack: () -> Unit) {
@@ -44,13 +48,15 @@ fun SalesDetailViewOnly(salesDetailsJson: String, onBack: () -> Unit) {
     }
     val dateFormatter = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
 
-    var selectedFilter by remember { mutableStateOf("All") }
-    val filters = listOf("All", "Misc", "Equip", "Serv")
+    // Calculate Global Totals
+    val totalGrossSales = salesList.sumOf { it.totalSalesAmount }
+    val totalExpenses = salesList.sumOf { it.totalExpensesAmount }
+    val totalNetSettlement = salesList.sumOf { it.finalCashSettlement }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background) // Theme-aware background
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Custom Top Bar
         Row(
@@ -81,40 +87,6 @@ fun SalesDetailViewOnly(salesDetailsJson: String, onBack: () -> Unit) {
             }
         }
 
-        // Filter Row
-        LazyRow(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(filters) { filter ->
-                val isSelected = filter == selectedFilter
-                Box(
-                    modifier = Modifier
-                        .clickable { selectedFilter = filter }
-                        .background(
-                            if (isSelected) Color(0xFF1E3A8A) else Color.Transparent, // Dark blue if selected
-                            RoundedCornerShape(20.dp)
-                        )
-                        .border(
-                            width = 1.dp,
-                            color = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outlineVariant,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = filter,
-                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        fontSize = 14.sp
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
         if (salesList.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -130,10 +102,65 @@ fun SalesDetailViewOnly(salesDetailsJson: String, onBack: () -> Unit) {
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // Global Summary Dashboard
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                "Total Summary",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Total Gross Sales", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(currencyFormatter.format(totalGrossSales), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+                            }
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Total Expenses", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("- ${currencyFormatter.format(totalExpenses)}", fontWeight = FontWeight.SemiBold, color = Color(0xFFEF4444))
+                            }
+                            
+                            DashedDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text("Net Settlement", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                                Text(
+                                    currencyFormatter.format(totalNetSettlement), 
+                                    fontWeight = FontWeight.ExtraBold, 
+                                    fontSize = 18.sp,
+                                    color = Color(0xFF10B981) // Green
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                item {
+                    Text(
+                        "Invoices Breakdown",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+
+                // Individual Receipt Cards
                 items(salesList) { item ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(12.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
@@ -141,98 +168,63 @@ fun SalesDetailViewOnly(salesDetailsJson: String, onBack: () -> Unit) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            // Top Row: Title and Amount Pill
+                            // Receipt Header
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.Top
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "Invoice #${item.invoiceNumber}",
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = dateFormatter.format(Date(item.timeCreatedAt * 1000L)),
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .background(Color(0xFFEFF6FF), RoundedCornerShape(20.dp))
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                                ) {
-                                    Text(
-                                        text = currencyFormatter.format(item.totalSalesAmount),
-                                        color = Color(0xFF2563EB), // Blue text
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp
-                                    )
+                                Text(
+                                    text = "Invoice #${item.invoiceNumber}",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = dateFormatter.format(Date(item.timeCreatedAt * 1000L)),
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.height(4.dp))
+                            
+                            // Ledger Lines
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Gross Sales", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(currencyFormatter.format(item.totalSalesAmount), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
+                            }
+                            
+                            if (item.totalExpensesAmount > 0) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("Expenses", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("- ${currencyFormatter.format(item.totalExpensesAmount)}", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFFEF4444))
                                 }
                             }
                             
-                            Spacer(modifier = Modifier.height(16.dp))
-                            
-                            // Bottom Row: Chips
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Total Sales Pill
-                                Box(
-                                    modifier = Modifier
-                                        .background(Color(0xFFECFDF5), RoundedCornerShape(12.dp))
-                                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                                ) {
-                                    Text(
-                                        text = "+ " + currencyFormatter.format(item.totalSalesAmount),
-                                        color = Color(0xFF10B981), // Green
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp
-                                    )
+                            val digitalOrKitchen = item.totalDigitalAmount + item.kitchenSales
+                            if (digitalOrKitchen > 0) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("Digital / Kitchen", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(currencyFormatter.format(digitalOrKitchen), fontSize = 14.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
                                 }
-                                
-                                // Profit Pill
-                                Box(
-                                    modifier = Modifier
-                                        .background(Color(0xFFEFF6FF), RoundedCornerShape(12.dp))
-                                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                                ) {
-                                    Text(
-                                        text = "- " + currencyFormatter.format(item.totalExpensesAmount), // Just an example metric
-                                        color = Color(0xFF2563EB), // Blue
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp
-                                    )
-                                }
+                            }
 
-                                // Invoice Label Pill
-                                Box(
-                                    modifier = Modifier
-                                        .background(Color(0xFFFAF5FF), RoundedCornerShape(12.dp)) // Light purple
-                                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            imageVector = Icons.Default.Description,
-                                            contentDescription = null,
-                                            tint = Color(0xFF9333EA), // Purple
-                                            modifier = Modifier.size(12.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = "Invoice",
-                                            color = Color(0xFF9333EA),
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 12.sp
-                                        )
-                                    }
-                                }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            DashedDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            
+                            // Net Line
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text("Net Settlement", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                                Text(
+                                    currencyFormatter.format(item.finalCashSettlement),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFF10B981) // Green
+                                )
                             }
                         }
                     }
@@ -242,5 +234,26 @@ fun SalesDetailViewOnly(salesDetailsJson: String, onBack: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun DashedDivider(
+    color: Color = Color.Gray,
+    thickness: androidx.compose.ui.unit.Dp = 1.dp,
+    modifier: Modifier = Modifier
+) {
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(thickness)
+    ) {
+        drawLine(
+            color = color,
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f),
+            strokeWidth = thickness.toPx(),
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+        )
     }
 }
