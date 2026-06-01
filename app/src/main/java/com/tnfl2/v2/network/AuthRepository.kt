@@ -75,6 +75,15 @@ class AuthRepository private constructor() {
         }
     }
 
+    suspend fun updateProduct(token: String, request: AddProductRequest): Result<Response<ResponseBody>> = wrapWithLoading {
+        try {
+            val response = apiService.updateProduct("Bearer $token", request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getSalesDraft(token: String): Result<GetSalesDraftResponse> = wrapWithLoading {
         try {
             val response = apiService.getSalesDraft("Bearer $token")

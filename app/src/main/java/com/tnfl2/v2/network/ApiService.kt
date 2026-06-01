@@ -257,6 +257,9 @@ interface ApiService {
     @POST("services/productmaster")
     suspend fun addProduct(@Header("Authorization") token: String, @Body request: AddProductRequest)
 
+    @PUT("services/productmaster")
+    suspend fun updateProduct(@Header("Authorization") token: String, @Body request: AddProductRequest): Response<ResponseBody>
+
     @GET("services/sales/draft")
     suspend fun getSalesDraft(@Header("Authorization") token: String): GetSalesDraftResponse
 

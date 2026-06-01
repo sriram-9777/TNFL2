@@ -609,6 +609,8 @@ fun ProductsScreen(token: String, onAddProduct: () -> Unit, refreshKey: Int) {
     var isLoading by remember { mutableStateOf(false) }
     // Note: isLoading kept for conditional content display; GlobalLoader handles spinner
     val context = LocalContext.current
+    var editingProduct by remember { mutableStateOf<Product?>(null) }
+    var internalRefreshKey by remember { mutableIntStateOf(0) }
 
     val currencyFormat = remember {
         NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
@@ -623,7 +625,7 @@ fun ProductsScreen(token: String, onAddProduct: () -> Unit, refreshKey: Int) {
          it.category.contains(searchQuery, ignoreCase = true))
     }
 
-    LaunchedEffect(token, refreshKey) {
+    LaunchedEffect(token, refreshKey, internalRefreshKey) {
         if (token.isNotEmpty()) {
             isLoading = true
             SessionManager.incrementLoading()
@@ -651,6 +653,28 @@ fun ProductsScreen(token: String, onAddProduct: () -> Unit, refreshKey: Int) {
                 )
             }
         }
+    }
+
+    // Edit Product Bottom Sheet
+    if (editingProduct != null) {
+        EditProductBottomSheet(
+            product = editingProduct!!,
+            onDismiss = { editingProduct = null },
+            onSave = { request ->
+                scope.launch {
+                    authRepository.updateProduct(token, request).fold(
+                        onSuccess = {
+                            Toast.makeText(context, "Product updated!", Toast.LENGTH_SHORT).show()
+                            editingProduct = null
+                            internalRefreshKey++
+                        },
+                        onFailure = { e ->
+                            Toast.makeText(context, "Update failed: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    )
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -815,7 +839,10 @@ fun ProductsScreen(token: String, onAddProduct: () -> Unit, refreshKey: Int) {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(filteredProducts) { product ->
-                        ProductCard(product = product)
+                        ProductCard(
+                            product = product,
+                            onEdit = { editingProduct = product }
+                        )
                     }
                 }
             } else {
@@ -2949,7 +2976,7 @@ fun getCategoryBgColor(category: String): Color {
 }
 
 @Composable
-fun ProductCard(product: Product) {
+fun ProductCard(product: Product, onEdit: () -> Unit = {}) {
     val currencyFormat = remember {
         NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
     }
@@ -3010,6 +3037,22 @@ fun ProductCard(product: Product) {
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
+
+                    // Edit Button
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .background(Color(0xFFEFF6FF), CircleShape)
+                            .clickable { onEdit() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Product",
+                            tint = Color(0xFF2563EB),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
 
                     // Status Badge
                     if (product.stock == 0) {
@@ -3147,6 +3190,197 @@ fun ProductCard(product: Product) {
                             trackColor = MaterialTheme.colorScheme.outlineVariant
                         )
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditProductBottomSheet(
+    product: Product,
+    onDismiss: () -> Unit,
+    onSave: (AddProductRequest) -> Unit
+) {
+    var salePrice by remember { mutableStateOf(product.salePrice.toString()) }
+    var purchasePrice by remember { mutableStateOf(product.purchasePrice.toString()) }
+    var stock by remember { mutableStateOf(product.stock.toString()) }
+    val profitAmount = remember(salePrice, purchasePrice) {
+        val sale = salePrice.toDoubleOrNull() ?: 0.0
+        val purchase = purchasePrice.toDoubleOrNull() ?: 0.0
+        sale - purchase
+    }
+    val currencyFormat = remember {
+        NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-IN"))
+    }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp)
+        ) {
+            // Header
+            Text(
+                text = "Edit Product",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Product Info (read-only)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = product.sku,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .background(getCategoryBgColor(product.category), RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = product.category.uppercase(Locale.ROOT),
+                                color = getCategoryColor(product.category),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFFF1F5F9), RoundedCornerShape(6.dp))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = product.brand.uppercase(Locale.ROOT),
+                                color = Color(0xFF475569),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Sale Price
+            OutlinedTextField(
+                value = salePrice,
+                onValueChange = { salePrice = it },
+                label = { Text("Sale Price (MRP)") },
+                leadingIcon = { Text("₹", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Purchase Price
+            OutlinedTextField(
+                value = purchasePrice,
+                onValueChange = { purchasePrice = it },
+                label = { Text("Purchase Price") },
+                leadingIcon = { Text("₹", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Profit (auto-calculated, read-only)
+            OutlinedTextField(
+                value = currencyFormat.format(profitAmount),
+                onValueChange = {},
+                label = { Text("Profit Amount") },
+                enabled = false,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    disabledTextColor = if (profitAmount >= 0) Color(0xFF16A34A) else Color(0xFFEF4444),
+                    disabledBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Stock
+            OutlinedTextField(
+                value = stock,
+                onValueChange = { stock = it },
+                label = { Text("Stock") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                ) {
+                    Text("Cancel", fontWeight = FontWeight.Bold)
+                }
+                Button(
+                    onClick = {
+                        val salePriceVal = salePrice.toDoubleOrNull() ?: 0.0
+                        val purchasePriceVal = purchasePrice.toDoubleOrNull() ?: 0.0
+                        val stockVal = stock.toIntOrNull() ?: 0
+                        // Extract size from SKU (e.g. "Dimond Rum-750ML" -> "750ML")
+                        val sizeStr = product.sku.substringAfterLast("-", "750ML")
+                        val request = AddProductRequest(
+                            sku = product.sku,
+                            brand = product.brand,
+                            category = product.category,
+                            details = listOf(
+                                ProductDetailItem(
+                                    size = sizeStr,
+                                    stock = stockVal,
+                                    purchasePrice = purchasePriceVal,
+                                    salePrice = salePriceVal,
+                                    profitAmount = salePriceVal - purchasePriceVal
+                                )
+                            )
+                        )
+                        onSave(request)
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF005696)
+                    )
+                ) {
+                    Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
