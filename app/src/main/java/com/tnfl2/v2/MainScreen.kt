@@ -29,9 +29,8 @@ fun MainScreen(onLogout: () -> Unit, token: String, onThemeChange: () -> Unit, i
     var selectedNavItem by remember { mutableStateOf<NavItem>(navItems.first()) }
     val scope = rememberCoroutineScope()
     var currentScreen by remember { mutableStateOf<String>("Dashboard") }
-    var productScreenRefreshKey by remember { mutableStateOf(0) }
+    var refreshKey by remember { mutableIntStateOf(0) }
     var salesDetailsJson by remember { mutableStateOf("") }
-    var triggerPosCart by remember { mutableStateOf(false) }
 
     val isDark = LocalThemeIsDark.current
 
@@ -41,6 +40,7 @@ fun MainScreen(onLogout: () -> Unit, token: String, onThemeChange: () -> Unit, i
             NavigationDrawer(selectedItem = selectedNavItem) {
                 selectedNavItem = it
                 currentScreen = it.title
+                refreshKey++
                 scope.launch { drawerState.close() }
             }
         }
@@ -54,11 +54,11 @@ fun MainScreen(onLogout: () -> Unit, token: String, onThemeChange: () -> Unit, i
                 val isSales = currentScreen == "Sales"
                 val isExpenses = currentScreen == "Expenses"
                 val isMembers = currentScreen == "Members"
-                val isPOS = currentScreen == "POS"
+
                 val isMemberSales = currentScreen == "Member Sales"
                 val isSettings = currentScreen == "Settings"
                 val isAccounts = currentScreen == "Accounts"
-                val isCustomHeader = isDashboard || isProducts || isPurchases || isSales || isExpenses || isMembers || isPOS || isMemberSales || isSettings || isAccounts
+                val isCustomHeader = isDashboard || isProducts || isPurchases || isSales || isExpenses || isMembers || isMemberSales || isSettings || isAccounts
 
                 // In dark mode use a deeper teal; in light mode use the original green gradient
                 val topBarColors = if (isDark)
@@ -85,7 +85,7 @@ fun MainScreen(onLogout: () -> Unit, token: String, onThemeChange: () -> Unit, i
                                             isSales -> "Sales"
                                             isExpenses -> "Expenses"
                                             isMembers -> "Members"
-                                            isPOS -> "POS"
+
                                             isMemberSales -> "Member Sales"
                                             isSettings -> "Settings"
                                             isAccounts -> "Accounts"
@@ -103,7 +103,7 @@ fun MainScreen(onLogout: () -> Unit, token: String, onThemeChange: () -> Unit, i
                                             isSales -> "Track your sales performance"
                                             isExpenses -> "Track your business expenses"
                                             isMembers -> "Manage your customers & membership program"
-                                            isPOS -> "Quick order entry & billing"
+
                                             isMemberSales -> "Analytics & weekly breakdown"
                                             isSettings -> "App preferences & account info"
                                             isAccounts -> "Track your payments & dues"
@@ -147,15 +147,7 @@ fun MainScreen(onLogout: () -> Unit, token: String, onThemeChange: () -> Unit, i
                                             fontSize = 12.sp
                                         )
                                     }
-                                    if (isPOS) {
-                                        IconButton(onClick = { triggerPosCart = true }) {
-                                            Icon(
-                                                imageVector = Icons.Default.ShoppingCart,
-                                                contentDescription = "Cart",
-                                                tint = Color.White
-                                            )
-                                        }
-                                    }
+
                                     IconButton(onClick = onThemeChange) {
                                         Icon(
                                             imageVector = if (isDark) Icons.Default.WbSunny else Icons.Default.NightsStay,
@@ -184,12 +176,12 @@ fun MainScreen(onLogout: () -> Unit, token: String, onThemeChange: () -> Unit, i
             Box(modifier = Modifier.padding(paddingValues)) {
                 when (currentScreen) {
                     "Dashboard" -> DashboardScreen(token = token)
-                    "Products" -> ProductsScreen(token = token, refreshKey = productScreenRefreshKey, onAddProduct = { currentScreen = "Add Product" })
-                    "Add Product" -> AddProductScreen(token = token, onProductAdded = { currentScreen = "Products" }, onCancel = { currentScreen = "Products" })
+                    "Products" -> ProductsScreen(token = token, refreshKey = refreshKey, onAddProduct = { currentScreen = "Add Product" })
+                    "Add Product" -> AddProductScreen(token = token, onProductAdded = { currentScreen = "Products"; refreshKey++ }, onCancel = { currentScreen = "Products" })
                     "Purchases" -> PurchasesScreen(token = token, onAddPurchase = { currentScreen = "Add Purchase" })
-                    "Add Purchase" -> AddPurchaseScreen(token = token, onNavigateBack = { currentScreen = "Purchases" })
-                    "Sales" -> SalesScreen(token = token, onAddSale = { currentScreen = "Add Sale" }, onSaleConfirmed = { currentScreen = "Sales" })
-                    "Add Sale" -> AddSaleScreen(token = token, onCancel = { currentScreen = "Sales" }, onSaleConfirmed = { currentScreen = "Sales" })
+                    "Add Purchase" -> AddPurchaseScreen(token = token, onNavigateBack = { currentScreen = "Purchases"; refreshKey++ })
+                    "Sales" -> SalesScreen(token = token, onAddSale = { currentScreen = "Add Sale" }, onSaleConfirmed = { currentScreen = "Sales"; refreshKey++ })
+                    "Add Sale" -> AddSaleScreen(token = token, onCancel = { currentScreen = "Sales" }, onSaleConfirmed = { currentScreen = "Sales"; refreshKey++ })
                     "Expenses" -> ExpensesScreen(token = token)
                     "Accounts" -> AccountsScreen(token = token, onShowDetails = { json -> 
                         salesDetailsJson = json
@@ -197,7 +189,7 @@ fun MainScreen(onLogout: () -> Unit, token: String, onThemeChange: () -> Unit, i
                     })
                     "Sales Details" -> SalesDetailViewOnly(salesDetailsJson = salesDetailsJson, onBack = { currentScreen = "Accounts" })
                     "Members" -> MembersScreen(token = token)
-                    "POS" -> POSScreen(token = token, showCartTrigger = triggerPosCart, onCartHandled = { triggerPosCart = false })
+
                     "Member Sales" -> MemberSalesScreen(token = token)
                     "Settings" -> SettingsScreen(token = token, onThemeChange = onThemeChange, isDarkTheme = isDarkTheme)
                     "Logout" -> onLogout()

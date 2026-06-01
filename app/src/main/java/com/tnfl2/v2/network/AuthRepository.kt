@@ -8,24 +8,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import com.tnfl2.v2.SessionManager
 
-class AuthRepository {
+class AuthRepository private constructor() {
 
-    val apiService: ApiService
+    val apiService: ApiService = SharedNetwork.apiService
 
-    init {
-        val okHttpClient = OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .build()
+    companion object {
+        // Single shared instance for the entire app
+        val instance: AuthRepository by lazy { AuthRepository() }
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://tnfl2-cb6ea45c64b3.herokuapp.com")
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        apiService = retrofit.create(ApiService::class.java)
+        // Convenience constructor for backward compatibility
+        operator fun invoke(): AuthRepository = instance
     }
 
     private suspend fun <T> wrapWithLoading(block: suspend () -> Result<T>): Result<T> {

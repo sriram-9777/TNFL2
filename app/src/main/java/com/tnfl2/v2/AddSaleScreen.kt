@@ -31,6 +31,7 @@ fun AddSaleScreen(
     val authRepository = remember { AuthRepository() }
     val scope = rememberCoroutineScope()
     val closingStocks = remember { mutableStateMapOf<String, String>() }
+    var grossSaleAmount by remember { mutableStateOf(0.0) }
     var totalSaleAmount by remember { mutableStateOf(0.0) }
     var currentScreen by remember { mutableStateOf("Sales") }
     val context = LocalContext.current
@@ -40,13 +41,14 @@ fun AddSaleScreen(
 
     fun calculateTotalSaleAmount(productList: List<Product>) {
         val expense = SessionManager.expenseAmount.toDoubleOrNull() ?: 0.0
-        totalSaleAmount = productList.sumOf { product ->
+        grossSaleAmount = productList.sumOf { product ->
             val closingStockStr = closingStocks[product.sku] ?: ""
             val closingStock = closingStockStr.toDoubleOrNull() ?: 0.0
             val openingStock = product.openingStock.toDouble()
             val sales = openingStock - closingStock
             if (sales > 0 && closingStockStr.isNotEmpty()) sales * product.salePrice else 0.0
-        } - expense
+        }
+        totalSaleAmount = grossSaleAmount - expense
     }
 
     LaunchedEffect(token, initialSale) {
@@ -191,14 +193,15 @@ fun AddSaleScreen(
             return
         }
 
+        val expenseTotal = SessionManager.expenseAmount.toDoubleOrNull() ?: 0.0
         val request = ConfirmSaleRequest(
             productList = productList,
             expenseList = emptyList(),
             payments = emptyMap(),
-            totalSalesAmount = totalSaleAmount,
-            totalExpensesAmount = SessionManager.expenseAmount.toDoubleOrNull() ?: 0.0,
+            totalSalesAmount = grossSaleAmount,
+            totalExpensesAmount = expenseTotal,
             totalDigitalAmount = 0.0,
-            finalCashSettlement = totalSaleAmount,
+            finalCashSettlement = grossSaleAmount - expenseTotal,
             saleDate = initialSale?.timeCreatedAt ?: (Date().time / 1000),
             openingPettyCash = 5000,
             kitchenSales = 0,

@@ -42,7 +42,6 @@ val navItems = listOf(
     NavItem("Expenses", Icons.Default.Payments, Color(0xFFF43F5E)),
     NavItem("Members", Icons.Default.People, Color(0xFF0EA5E9)),
     NavItem("Accounts", Icons.Default.AccountBalanceWallet, Color(0xFF10B981)),
-    NavItem("POS", Icons.Default.Monitor, Color(0xFF06B6D4)),
     NavItem("Member Sales", Icons.AutoMirrored.Filled.Assignment, Color(0xFFF59E0B)),
     NavItem("Settings", Icons.Default.Settings, Color(0xFF64748B))
 )
