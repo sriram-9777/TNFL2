@@ -254,6 +254,32 @@ fun AddSaleScreen(
 
     GradientBackground {
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            val tabs = listOf("Sales", "Expenses", "Final Settlement")
+            val selectedTabIndex = tabs.indexOf(currentScreen).coerceAtLeast(0)
+
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onBackground
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    val isSelected = selectedTabIndex == index
+                    Tab(
+                        selected = isSelected,
+                        onClick = { currentScreen = title },
+                        text = {
+                            Text(
+                                text = title,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                            )
+                        }
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
             when (currentScreen) {
                     "Sales" -> {
                         Text("Add Sale", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
