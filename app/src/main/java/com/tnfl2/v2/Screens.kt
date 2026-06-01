@@ -928,21 +928,14 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFE4F6F5),
-                        Color(0xFF9DD4E9)
-                    )
-                )
-            )
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Text("Add New Product", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color.Black)
+    GradientBackground {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text("Add New Product", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -953,13 +946,13 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
                     value = type, onValueChange = {}, enabled = false,
                     label = { Text("Type") },
                     modifier = Modifier.fillMaxWidth().clickable { typeExpanded = true },
-                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, "Select Type", tint = Color.Black) },
+                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, "Select Type", tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.Black,
-                        disabledBorderColor = Color.Gray,
-                        disabledLabelColor = Color.DarkGray,
-                        disabledContainerColor = Color.White.copy(alpha = 0.3f),
-                        disabledTrailingIconColor = Color.Black
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -975,14 +968,12 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
                 label = { Text("SKU Name") }, 
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedTextColor = Color.Black,
-                    focusedTextColor = Color.Black,
-                    unfocusedLabelColor = Color.DarkGray,
-                    focusedLabelColor = Color.DarkGray,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedBorderColor = Color.Black,
-                    unfocusedContainerColor = Color.White.copy(alpha = 0.3f),
-                    focusedContainerColor = Color.White.copy(alpha = 0.5f)
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                 ),
                 shape = RoundedCornerShape(8.dp)
             )
@@ -1000,13 +991,13 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
                     OutlinedTextField(
                         value = brand, onValueChange = {}, enabled = false, label = { Text(if (type == "Wine") "Wine Type" else "Brand") },
                         modifier = Modifier.fillMaxWidth().clickable { brandExpanded = true },
-                        trailingIcon = { Icon(Icons.Default.ArrowDropDown, "Select Brand", tint = Color.Black) },
+                        trailingIcon = { Icon(Icons.Default.ArrowDropDown, "Select Brand", tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                         colors = OutlinedTextFieldDefaults.colors(
-                            disabledTextColor = Color.Black,
-                            disabledBorderColor = Color.Gray,
-                            disabledLabelColor = Color.DarkGray,
-                            disabledContainerColor = Color.White.copy(alpha = 0.3f),
-                            disabledTrailingIconColor = Color.Black
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         shape = RoundedCornerShape(8.dp)
                     )
@@ -1020,10 +1011,10 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
                 OutlinedTextField(
                     value = brand, onValueChange = {}, label = { Text("Brand") }, modifier = Modifier.fillMaxWidth(), enabled = false,
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.Black,
-                        disabledBorderColor = Color.Gray,
-                        disabledLabelColor = Color.DarkGray,
-                        disabledContainerColor = Color.White.copy(alpha = 0.3f)
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
                     ),
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -1074,6 +1065,7 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
             isLoading = isLoading
         )
     }
+    }
 }
 
 @Composable
@@ -1096,14 +1088,14 @@ private fun ProductDetailsTable(
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.weight(1f))
             volumes.forEach { volume ->
-                Text(text = volume, modifier = Modifier.weight(1f).padding(horizontal = 2.dp), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, color = Color.Black)
+                Text(text = volume, modifier = Modifier.weight(1f).padding(horizontal = 2.dp), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onBackground)
             }
         }
-        HorizontalDivider(color = Color.Gray.copy(alpha = 0.5f))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Stock", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.Black)
+            Text("Stock", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             volumes.forEach { volume ->
                 OutlinedTextField(
                     value = productDetails[volume]?.stock ?: "",
@@ -1113,14 +1105,14 @@ private fun ProductDetailsTable(
                         productDetails = newMap
                     },
                     modifier = Modifier.weight(1f).padding(horizontal = 2.dp).height(50.dp),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.Black),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
-                        unfocusedBorderColor = Color.Gray,
-                        unfocusedContainerColor = Color.White.copy(alpha = 0.2f),
-                        focusedContainerColor = Color.White.copy(alpha = 0.4f),
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     shape = RoundedCornerShape(4.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true
@@ -1130,7 +1122,7 @@ private fun ProductDetailsTable(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Purchase\nPrice\n(MRP)", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 12.sp)
+            Text("Purchase\nPrice\n(MRP)", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp)
             volumes.forEach { volume ->
                 OutlinedTextField(
                     value = productDetails[volume]?.purchasePrice ?: "",
@@ -1144,14 +1136,14 @@ private fun ProductDetailsTable(
                         productDetails = newMap
                     },
                     modifier = Modifier.weight(1f).padding(horizontal = 2.dp).height(50.dp),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.Black),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
-                        unfocusedBorderColor = Color.Gray,
-                        unfocusedContainerColor = Color.White.copy(alpha = 0.2f),
-                        focusedContainerColor = Color.White.copy(alpha = 0.4f),
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     shape = RoundedCornerShape(4.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true
@@ -1161,7 +1153,7 @@ private fun ProductDetailsTable(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Sale\nPrice", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 12.sp)
+            Text("Sale\nPrice", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp)
             volumes.forEach { volume ->
                 OutlinedTextField(
                     value = productDetails[volume]?.salePrice ?: "",
@@ -1175,14 +1167,14 @@ private fun ProductDetailsTable(
                         productDetails = newMap
                     },
                     modifier = Modifier.weight(1f).padding(horizontal = 2.dp).height(50.dp),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.Black),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
-                        unfocusedBorderColor = Color.Gray,
-                        unfocusedContainerColor = Color.White.copy(alpha = 0.2f),
-                        focusedContainerColor = Color.White.copy(alpha = 0.4f),
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                     ),
                     shape = RoundedCornerShape(4.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true
@@ -1192,16 +1184,16 @@ private fun ProductDetailsTable(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Profit\nAmount", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 12.sp)
+            Text("Profit\nAmount", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp)
             volumes.forEach { volume ->
                 OutlinedTextField(
                     value = productDetails[volume]?.profitAmount ?: "", onValueChange = {}, enabled = false,
                     modifier = Modifier.weight(1f).padding(horizontal = 2.dp).height(50.dp),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.Black),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface),
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.Black,
-                        disabledBorderColor = Color.Gray,
-                        disabledContainerColor = Color.White.copy(alpha = 0.2f)
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                        disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
                     ),
                     shape = RoundedCornerShape(4.dp),
                     singleLine = true
@@ -1220,7 +1212,7 @@ private fun ProductDetailsTable(
                 onClick = onCancel,
                 modifier = Modifier.padding(end = 16.dp),
                 enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF53A8E0), contentColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
                 shape = RoundedCornerShape(50)
             ) {
                 Text("Cancel", fontWeight = FontWeight.Bold)
@@ -1228,7 +1220,7 @@ private fun ProductDetailsTable(
             Button(
                 onClick = { onAddProductClicked(productDetails) },
                 enabled = !isLoading,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF53A8E0), contentColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
                 shape = RoundedCornerShape(50)
             ) {
                 Text("Add Product", fontWeight = FontWeight.Bold)
