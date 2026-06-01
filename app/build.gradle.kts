@@ -6,14 +6,12 @@ plugins {
 
 android {
     namespace = "com.tnfl2.v2"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.tnfl2.v2"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
