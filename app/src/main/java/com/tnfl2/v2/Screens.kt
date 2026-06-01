@@ -953,13 +953,13 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
                     value = type, onValueChange = {}, enabled = false,
                     label = { Text("Type") },
                     modifier = Modifier.fillMaxWidth().clickable { typeExpanded = true },
-                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, "Select Type", tint = Color.White) },
+                    trailingIcon = { Icon(Icons.Default.ArrowDropDown, "Select Type", tint = Color.Black) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.White,
-                        disabledBorderColor = Color.Gray.copy(alpha = 0.5f),
-                        disabledLabelColor = Color.White,
-                        disabledContainerColor = Color.White.copy(alpha = 0.2f),
-                        disabledTrailingIconColor = Color.White
+                        disabledTextColor = Color.Black,
+                        disabledBorderColor = Color.Gray,
+                        disabledLabelColor = Color.DarkGray,
+                        disabledContainerColor = Color.White.copy(alpha = 0.3f),
+                        disabledTrailingIconColor = Color.Black
                     ),
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -975,14 +975,14 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
                 label = { Text("SKU Name") }, 
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedTextColor = Color.White,
-                    focusedTextColor = Color.White,
-                    unfocusedLabelColor = Color.White,
-                    focusedLabelColor = Color.White,
-                    unfocusedBorderColor = Color.Gray.copy(alpha = 0.5f),
-                    focusedBorderColor = Color.Gray,
-                    unfocusedContainerColor = Color.White.copy(alpha = 0.2f),
-                    focusedContainerColor = Color.White.copy(alpha = 0.3f)
+                    unfocusedTextColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    unfocusedLabelColor = Color.DarkGray,
+                    focusedLabelColor = Color.DarkGray,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedBorderColor = Color.Black,
+                    unfocusedContainerColor = Color.White.copy(alpha = 0.3f),
+                    focusedContainerColor = Color.White.copy(alpha = 0.5f)
                 ),
                 shape = RoundedCornerShape(8.dp)
             )
@@ -1000,13 +1000,13 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
                     OutlinedTextField(
                         value = brand, onValueChange = {}, enabled = false, label = { Text(if (type == "Wine") "Wine Type" else "Brand") },
                         modifier = Modifier.fillMaxWidth().clickable { brandExpanded = true },
-                        trailingIcon = { Icon(Icons.Default.ArrowDropDown, "Select Brand", tint = Color.White) },
+                        trailingIcon = { Icon(Icons.Default.ArrowDropDown, "Select Brand", tint = Color.Black) },
                         colors = OutlinedTextFieldDefaults.colors(
-                            disabledTextColor = Color.White,
-                            disabledBorderColor = Color.Gray.copy(alpha = 0.5f),
-                            disabledLabelColor = Color.White,
-                            disabledContainerColor = Color.White.copy(alpha = 0.2f),
-                            disabledTrailingIconColor = Color.White
+                            disabledTextColor = Color.Black,
+                            disabledBorderColor = Color.Gray,
+                            disabledLabelColor = Color.DarkGray,
+                            disabledContainerColor = Color.White.copy(alpha = 0.3f),
+                            disabledTrailingIconColor = Color.Black
                         ),
                         shape = RoundedCornerShape(8.dp)
                     )
@@ -1020,10 +1020,10 @@ fun AddProductScreen(token: String, onProductAdded: () -> Unit, onCancel: () -> 
                 OutlinedTextField(
                     value = brand, onValueChange = {}, label = { Text("Brand") }, modifier = Modifier.fillMaxWidth(), enabled = false,
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.White,
-                        disabledBorderColor = Color.Gray.copy(alpha = 0.5f),
-                        disabledLabelColor = Color.White,
-                        disabledContainerColor = Color.White.copy(alpha = 0.2f)
+                        disabledTextColor = Color.Black,
+                        disabledBorderColor = Color.Gray,
+                        disabledLabelColor = Color.DarkGray,
+                        disabledContainerColor = Color.White.copy(alpha = 0.3f)
                     ),
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -1096,14 +1096,14 @@ private fun ProductDetailsTable(
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.weight(1f))
             volumes.forEach { volume ->
-                Text(text = volume, modifier = Modifier.weight(1f).padding(horizontal = 2.dp), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, color = Color.White)
+                Text(text = volume, modifier = Modifier.weight(1f).padding(horizontal = 2.dp), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, color = Color.Black)
             }
         }
         HorizontalDivider(color = Color.Gray.copy(alpha = 0.5f))
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Stock", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.White)
+            Text("Stock", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.Black)
             volumes.forEach { volume ->
                 OutlinedTextField(
                     value = productDetails[volume]?.stock ?: "",
@@ -1113,14 +1113,14 @@ private fun ProductDetailsTable(
                         productDetails = newMap
                     },
                     modifier = Modifier.weight(1f).padding(horizontal = 2.dp).height(50.dp),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.White),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.Black),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray.copy(alpha = 0.7f),
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Gray,
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.2f),
+                        focusedContainerColor = Color.White.copy(alpha = 0.4f),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
                     ),
                     shape = RoundedCornerShape(4.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true
@@ -1130,7 +1130,7 @@ private fun ProductDetailsTable(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Purchase\nPrice\n(MRP)", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.White, fontSize = 12.sp)
+            Text("Purchase\nPrice\n(MRP)", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 12.sp)
             volumes.forEach { volume ->
                 OutlinedTextField(
                     value = productDetails[volume]?.purchasePrice ?: "",
@@ -1144,14 +1144,14 @@ private fun ProductDetailsTable(
                         productDetails = newMap
                     },
                     modifier = Modifier.weight(1f).padding(horizontal = 2.dp).height(50.dp),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.White),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.Black),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray.copy(alpha = 0.7f),
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Gray,
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.2f),
+                        focusedContainerColor = Color.White.copy(alpha = 0.4f),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
                     ),
                     shape = RoundedCornerShape(4.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true
@@ -1161,7 +1161,7 @@ private fun ProductDetailsTable(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Sale\nPrice", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.White, fontSize = 12.sp)
+            Text("Sale\nPrice", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 12.sp)
             volumes.forEach { volume ->
                 OutlinedTextField(
                     value = productDetails[volume]?.salePrice ?: "",
@@ -1175,14 +1175,14 @@ private fun ProductDetailsTable(
                         productDetails = newMap
                     },
                     modifier = Modifier.weight(1f).padding(horizontal = 2.dp).height(50.dp),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.White),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.Black),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Gray,
-                        unfocusedBorderColor = Color.Gray.copy(alpha = 0.7f),
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
+                        focusedBorderColor = Color.Black,
+                        unfocusedBorderColor = Color.Gray,
+                        unfocusedContainerColor = Color.White.copy(alpha = 0.2f),
+                        focusedContainerColor = Color.White.copy(alpha = 0.4f),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black
                     ),
                     shape = RoundedCornerShape(4.dp),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true
@@ -1192,16 +1192,16 @@ private fun ProductDetailsTable(
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("Profit\nAmount", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.White, fontSize = 12.sp)
+            Text("Profit\nAmount", modifier = Modifier.weight(1f).padding(end = 4.dp), fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 12.sp)
             volumes.forEach { volume ->
                 OutlinedTextField(
                     value = productDetails[volume]?.profitAmount ?: "", onValueChange = {}, enabled = false,
                     modifier = Modifier.weight(1f).padding(horizontal = 2.dp).height(50.dp),
-                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.White),
+                    textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, color = Color.Black),
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.White,
-                        disabledBorderColor = Color.Gray.copy(alpha = 0.7f),
-                        disabledContainerColor = Color.Transparent
+                        disabledTextColor = Color.Black,
+                        disabledBorderColor = Color.Gray,
+                        disabledContainerColor = Color.White.copy(alpha = 0.2f)
                     ),
                     shape = RoundedCornerShape(4.dp),
                     singleLine = true
