@@ -1761,6 +1761,38 @@ fun SaleItemCard(
                         )
                     }
 
+                    // Print button (orange circle)
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(Color(0xFFFFF7ED), CircleShape)
+                            .clickable { /* TODO: handle print */ },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Receipt,
+                            contentDescription = "Print",
+                            tint = Color(0xFFEA580C),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                    // Member button (purple circle)
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(Color(0xFFFAF5FF), CircleShape)
+                            .clickable { /* TODO: handle member */ },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Member",
+                            tint = Color(0xFF9333EA),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
                     // Edit button (green circle, only if editable)
                     if (isEditable) {
                         Box(
