@@ -1472,7 +1472,7 @@ fun SalesScreen(token: String, onAddSale: () -> Unit, onSaleConfirmed: () -> Uni
                 itemsIndexed(salesItems) { index, sale ->
                     SaleItemCard(
                         sale = sale, 
-                        isEditable = index == 0,
+                        isEditable = true,
                         onEdit = {
                             scope.launch {
                                 val saleId = sale.id?.toString() ?: ""
